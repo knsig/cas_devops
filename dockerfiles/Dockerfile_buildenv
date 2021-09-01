@@ -1,0 +1,8 @@
+# This points to
+FROM sigikneubuehler/stm32devenv:latest
+
+RUN apt-get install -y python3-pip
+
+# Install cppcheck-junit
+RUN pip install cppcheck-junit
+RUN pip install --upgrade cppcheck-junit

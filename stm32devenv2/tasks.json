@@ -1,0 +1,122 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Docker Container",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "run",
+                "--name", "${workspaceFolderBasename}",
+                "--rm",
+                "-v", "${cwd}/:/${workspaceFolderBasename}",
+                "-d",
+                "-it",
+                "sigikneubuehler/stm32devenv:latest"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Open bash in Container",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "exec",
+                "-it", "${workspaceFolderBasename}",
+                "/bin/bash"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Stop Docker Container",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "stop",
+                "${workspaceFolderBasename}",
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "exec",
+                "-w", "/${workspaceFolderBasename}",
+                "${workspaceFolderBasename}",
+                "sh", "-c", "cd Debug; make all",
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Run cppchecker",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "exec",
+                "-w", "/${workspaceFolderBasename}",
+                "${workspaceFolderBasename}",
+                "sh", "-c", "cd Debug; make cppcheck",
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": 
+                "docker",
+            "args": [
+                "exec",
+                "-w", "/${workspaceFolderBasename}",
+                "${workspaceFolderBasename}",
+                "sh", "-c", "cd Debug; make clean",
+            ],
+            "problemMatcher": "$gcc",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Start OpenOCD",
+            "type": "shell",
+            "command": "openocd",
+            "problemMatcher": [],
+            "args": [
+                "-f", "C:/OpenOCD/scripts/board/stm32f3discovery.cfg",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }        
+    ]
+}
