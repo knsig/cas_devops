@@ -1,0 +1,59 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+  containers:
+    - container: build-container
+      image: sigikneubuehler/stm32buildenv:latest
+      volumes:
+        - /home/vsts/work/1/s:/__w/1/s
+
+container: build-container
+
+steps:
+- script: |
+    cd Debug
+    make
+  displayName: Build TestProject
+- script: |
+    cd Debug
+    make cppcheck
+    cd ..
+  displayName: Execute static code analyzes
+- script: |
+    mkdir output
+    cp Debug/TestProject.elf output/TestProject.elf
+  displayName: Copy output
+- script: |
+    cppcheck_junit cppcheck_log.xml cppcheck_junit.xml
+    ls
+  displayName: Convert cppcheck output for JUnit
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: 'cppcheck_junit.xml' 
+    searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+    #mergeTestResults: false # Optional
+    #failTaskOnFailedTests: false # Optional
+    #testRunTitle: # Optional
+    #buildPlatform: # Optional
+    #buildConfiguration: # Optional
+    #publishRunAttachments: true # Optional
+
+- task: UniversalPackages@0
+  inputs:
+    command: 'publish'
+    publishDirectory: '/home/vsts/work/1/s/output'
+    feedsToUsePublish: 'internal'
+    vstsFeedPublish: '78c2f5bc-86b6-40d2-b43a-d7415703a21f/3c37e5c2-5221-486c-b269-f2e617b0e5c4'
+    vstsFeedPackagePublish: 'first-release'
+
